@@ -26,6 +26,7 @@ Latest Stripe PHP API is also used to finalise the charge process.
     * Stripe PHP API is upgraded
     * Bug Fix: Bitcoin js config set expected boolean value, string was passed.
     * Updated: js Address config set was updated to comply with new stripe checkout configuration setup.
+    * Removed: Alipay support is removed as Stripe Checkout no longer supports Alipay. Alipay support is added to a new module.
 
 
 # Installation Instruction
