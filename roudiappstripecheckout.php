@@ -30,7 +30,7 @@ function roudiappstripecheckout_config() {
      "itemdesc" => array("FriendlyName" => "Item Description", "Value"=>"Company Services", "Description" => "Generic item description on stripe checkout form.", "Type" => "text", "Size" => "45", ),
      "roudiappsha" => array("FriendlyName" => "SHA Key", "Value"=>"somethinghere", "Description" => "This key is used for transaction encryption. Use mix of alphabet and numbers with no space.", "Type" => "text", "Size" => "45", ),
      "roudiappinvoicetag" => array("FriendlyName" => "Invoice Tag", "Value"=>"domain.com INVOICE # ", "Description" => "This will accompany invoice id on stripe record for easier tracking.", "Type" => "text", "Size" => "35", ),
-     "roudiappbutton" => array("FriendlyName" => "Pay Button Text", "Value"=>"Pay Now", "Description" => "This key is used for transaction encryption. Use mix of alphabet and numbers with no space.", "Type" => "text", "Size" => "45", ),
+     "roudiappbutton" => array("FriendlyName" => "Pay Button Text", "Value"=>"Pay Now", "Description" => "", "Type" => "text", "Size" => "45", ),
      "testmode" => array("FriendlyName" => "Test Mode", "Type" => "yesno", "Description" => "Enable Test Mode", ),
      "bitcoin" => array("FriendlyName" => "Bitcoin", "Type" => "yesno", "Description" => "Enable Bitcoin", ),
      "locale" => array("FriendlyName" => "Stripe Checkout Language", "Type" => "text", "Size" => "5", "Value"=>"en", "Description" => "Supported languages are: Simplified Chinese (zh), Dutch (nl), English (en), French (fr), German (de), Italian (it), Japanese (ja), Spanish (es)", ),
@@ -221,7 +221,7 @@ function roudiappstripecheckout_refund($params) {
     	}
     	
     	//refund object is returned if the refund is successful.
-    	if($refundedcharge->object == "refund"){
+    	if($refundedcharge->status === "succeeded"){
     	    $results["transid"] = $refundedcharge->id;
 			$results["status"] = "success";
 		} else {
@@ -266,7 +266,7 @@ function roudiappstripecheckout_refund($params) {
 
 	# Return Results
 	if ($results["status"]=="success") {
-		return array("status"=>"success","transid"=>$results["transid"],"rawdata"=>$customercharge);
+		return array("status"=>"success","transid"=>$results["transid"],"rawdata"=>$refundedcharge);
 	} elseif ($results["status"]=="declined") {
         return array("status"=>"declined","rawdata"=>$e ." #Status Code: ". $httpstatuscode);
     } else {

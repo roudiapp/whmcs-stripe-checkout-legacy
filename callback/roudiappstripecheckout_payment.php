@@ -2,7 +2,7 @@
 ////////////////////////////////////////////////////
 // WHMCS Payment gateway module for Stripe Checkout 
 //
-// Copyright (C) 2006 - 2017  RoudiApp.com - Bermouda Ltd.
+// Copyright (C) 2006 - 2016  RoudiApp.com - Bermouda Ltd.
 //
 // License:  license is commercial with the source code distributed under the GNU General Public License version 3.
 // https://roudiapp.com/terms.html
