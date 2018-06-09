@@ -2,15 +2,18 @@
 ////////////////////////////////////////////////////
 // WHMCS Payment gateway module for Stripe Checkout 
 //
-// Copyright (C) 2006 - 2016  RoudiApp.com - Bermouda Ltd.
+// Copyright (C) 2006 - 2018  RoudiApp.com - Bermouda Ltd.
 //
 // License:  license is commercial with the source code distributed under the GNU General Public License version 3.
 // https://roudiapp.com/terms.html
 // For support: hello@roudiapp.com
-// Version 4
+// Version 4.2
 ////////////////////////////////////////////////////
 
-include_once("../stripe512/init.php");
+if(!class_exists('Stripe\Stripe')){
+	require_once("../stripe674/init.php");
+}
+
 use Stripe\Util\Util as Util;
 
 // WHMCS Required File Includes
@@ -80,7 +83,8 @@ if(isset($_POST['stripeToken'])){
 				$transaction_data = json_decode($customercharge, true);
 				
 				$transid = $customercharge->id;
-				$chargefee = (($amount * $GATEWAY['transactionfeeper']) / 100) + ($GATEWAY['transactionfeefix'] / 100);
+				$balance_transaction = Stripe_BalanceTransaction::retrieve($customercharge->balance_transaction);
+		    	$chargefee = $balance_transaction->fee / 100;
 
 				$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); // Checks invoice ID is a valid invoice number or ends processing
 

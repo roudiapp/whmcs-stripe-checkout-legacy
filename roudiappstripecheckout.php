@@ -2,19 +2,22 @@
 ////////////////////////////////////////////////////
 // WHMCS Payment gateway module for Stripe Checkout 
 //
-// Copyright (C) 2006 - 2017  RoudiApp.com - Bermouda Ltd.
+// Copyright (C) 2006 - 2018  RoudiApp.com - Bermouda Ltd.
 //
 // License:  license is commercial with the source code distributed under the GNU General Public License version 3.
 // https://roudiapp.com/terms.html
 // For support: hello@roudiapp.com
-// Version 4
+// Version 4.2
 ////////////////////////////////////////////////////
 
 if (!defined( "WHMCS" )) {
 	exit( "This file cannot be accessed directly" );
 }
 
-require_once("stripe512/init.php");
+if(!class_exists('Stripe\Stripe')){
+	require_once("stripe674/init.php");
+}
+
 use Stripe\Util\Util as Util;
 
 function roudiappstripecheckout_config() {
@@ -36,8 +39,6 @@ function roudiappstripecheckout_config() {
      "locale" => array("FriendlyName" => "Stripe Checkout Language", "Type" => "text", "Size" => "5", "Value"=>"en", "Description" => "Supported languages are: Simplified Chinese (zh), Dutch (nl), English (en), French (fr), German (de), Italian (it), Japanese (ja), Spanish (es)", ),
 	 "currencycode" => array("FriendlyName" => "Currency Code", "Type" => "text", "Size" => "5", "Value"=>"gbp", "Description" => "Supports all currencies supported by Stripe.", ),
 	 "addresscheck" => array("FriendlyName" => "Address Check", "Type" => "yesno", "Description" => "Enable address fields in stripe checkout form.", ),
-	 "transactionfeeper" => array("FriendlyName" => "Transaction Fee %", "Type" => "text", "Size" => "5", "Value"=>"2.75", "Description" => "Value in percentage.", ),
-	 "transactionfeefix" => array("FriendlyName" => "Transaction Fee Fix", "Type" => "text", "Size" => "5", "Value"=>"20", "Description" => "Fix value in pence or cents.", ),
      "instructions" => array("FriendlyName" => "Payment Instructions", "Type" => "textarea", "Rows" => "7", "Description" => "The moStripe Checkout payment module (100% PCI OK) and its SMS Delivery services are developed and provided by Bermouda Limited. PomidorCart.com, Pomidka.com are Trading names of Bermouda Limited.", ),
      );
 	return $configarray;
