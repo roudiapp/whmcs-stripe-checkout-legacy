@@ -83,7 +83,7 @@ if(isset($_POST['stripeToken'])){
 				$transaction_data = json_decode($customercharge, true);
 				
 				$transid = $customercharge->id;
-				$balance_transaction = Stripe_BalanceTransaction::retrieve($customercharge->balance_transaction);
+				$balance_transaction = \Stripe\BalanceTransaction::retrieve($customercharge->balance_transaction);
 		    	$chargefee = $balance_transaction->fee / 100;
 
 				$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); // Checks invoice ID is a valid invoice number or ends processing
