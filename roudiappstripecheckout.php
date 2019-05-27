@@ -35,6 +35,7 @@ function roudiappstripecheckout_config() {
      "roudiappinvoicetag" => array("FriendlyName" => "Invoice Tag", "Value"=>"domain.com INVOICE # ", "Description" => "This will accompany invoice id on stripe record for easier tracking.", "Type" => "text", "Size" => "35", ),
      "roudiappbutton" => array("FriendlyName" => "Pay Button Text", "Value"=>"Pay Now", "Description" => "", "Type" => "text", "Size" => "45", ),
      "testmode" => array("FriendlyName" => "Test Mode", "Type" => "yesno", "Description" => "Enable Test Mode", ),
+     "authorisepayment" => array("FriendlyName" => "Authorise Payment", "Type" => "yesno", "Description" => "If enabled, transactions will only be authorised.", ),
      "bitcoin" => array("FriendlyName" => "Bitcoin", "Type" => "yesno", "Description" => "Enable Bitcoin", ),
      "locale" => array("FriendlyName" => "Stripe Checkout Language", "Type" => "text", "Size" => "5", "Value"=>"en", "Description" => "Supported languages are: Simplified Chinese (zh), Dutch (nl), English (en), French (fr), German (de), Italian (it), Japanese (ja), Spanish (es)", ),
 	 "currencycode" => array("FriendlyName" => "Currency Code", "Type" => "text", "Size" => "5", "Value"=>"gbp", "Description" => "Supports all currencies supported by Stripe.", ),

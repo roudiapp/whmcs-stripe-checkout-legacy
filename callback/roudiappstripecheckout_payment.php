@@ -41,6 +41,9 @@ if(isset($_POST['stripeToken'])){
     	$secretkey = $GATEWAY["secretkey"];
     }
 
+    //check if authorise payment is enabled, then set capture to false
+    $authorisepayment = ($GATEWAY['authorisepayment'] == 'on')? false:true;
+
     //set user id
     $userid = intval((int)$_POST['userid']);
 
@@ -69,42 +72,77 @@ if(isset($_POST['stripeToken'])){
 							  "amount" => $amount,
 							  "currency" => $_POST['currency'],
 							  "customer" => $customerprofile->id,
+							  "capture" => $authorisepayment,
 							  "description" => $GATEWAY['roudiappinvoicetag'] . $invoiceid)
 						  	);
 		
-					  	
-		if($customercharge->captured){
-			if($customercharge->paid){
-				
+		//if authorise only
+		if(!$authorisepayment){
+			//authorise payment only
+			if($customercharge->outcome->type == "authorized"){
+				if($customercharge->status == "succeeded"){
+					// Get Returned Variables
+					$amount = $customercharge->amount / 100;
 
-				// Get Returned Variables
-				$amount = $customercharge->amount / 100;
+					$transaction_data = json_decode($customercharge, true);
+					
+					$transid = $customercharge->id;
 
-				$transaction_data = json_decode($customercharge, true);
-				
-				$transid = $customercharge->id;
-				$balance_transaction = \Stripe\BalanceTransaction::retrieve($customercharge->balance_transaction);
-		    	$chargefee = $balance_transaction->fee / 100;
+					$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); // Checks invoice ID is a valid invoice number or ends processing
 
-				$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); // Checks invoice ID is a valid invoice number or ends processing
+					checkCbTransID($transid); // Checks transaction number isn't already in the database and ends processing if it does
 
-				checkCbTransID($transid); // Checks transaction number isn't already in the database and ends processing if it does
-
-				// Successful
-				addInvoicePayment($invoiceid,$transid,$amount,$chargefee,$gatewaymodule); // Apply Payment to Invoice: invoiceid, transactionid, amount paid, fees, modulename
-				logTransaction($GATEWAY["name"],$transaction_data,"Successful"); // Save to Gateway Log: name, data array, status
-				
-				header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentsuccess=true" ) );
-				exit();
-				return 1;
-
+					// Successful
+					addInvoicePayment($invoiceid,$transid,$amount,0,$gatewaymodule); // Apply Payment to Invoice: invoiceid, transactionid, amount paid, fees, modulename
+					logTransaction($GATEWAY["name"],$customercharge,"Successful"); // Save to Gateway Log: name, data array, status
+					
+					header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentsuccess=true" ) );
+					exit();
+					return 1;
+				}
+			} else {
+				// Unsuccessful
+				logTransaction($GATEWAY["name"],$transaction_data,"Unsuccessful"); // Save to Gateway Log: name, data array, status
+				echo "Sorry, something went wrong, please check your card balance or details and try again.";
+				header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentfailed=true" ) );
 			}
+
 		} else {
-			// Unsuccessful
-			logTransaction($GATEWAY["name"],$transaction_data,"Unsuccessful"); // Save to Gateway Log: name, data array, status
-			echo "Sorry, something went wrong, please check your card balance or details and try again.";
-			header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentfailed=true" ) );
-		}
+			//capture payment
+			if($customercharge->captured){
+				if($customercharge->paid){
+					
+
+					// Get Returned Variables
+					$amount = $customercharge->amount / 100;
+
+					$transaction_data = json_decode($customercharge, true);
+					
+					$transid = $customercharge->id;
+					$balance_transaction = \Stripe\BalanceTransaction::retrieve($customercharge->balance_transaction);
+			    	$chargefee = $balance_transaction->fee / 100;
+
+					$invoiceid = checkCbInvoiceID($invoiceid,$GATEWAY["name"]); // Checks invoice ID is a valid invoice number or ends processing
+
+					checkCbTransID($transid); // Checks transaction number isn't already in the database and ends processing if it does
+
+					// Successful
+					addInvoicePayment($invoiceid,$transid,$amount,$chargefee,$gatewaymodule); // Apply Payment to Invoice: invoiceid, transactionid, amount paid, fees, modulename
+					logTransaction($GATEWAY["name"],$transaction_data,"Successful"); // Save to Gateway Log: name, data array, status
+					
+					header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentsuccess=true" ) );
+					exit();
+					return 1;
+
+				}
+			} else {
+				// Unsuccessful
+				logTransaction($GATEWAY["name"],$transaction_data,"Unsuccessful"); // Save to Gateway Log: name, data array, status
+				echo "Sorry, something went wrong, please check your card balance or details and try again.";
+				header( "Location: " . $CONFIG["SystemURL"] . ( "/viewinvoice.php?id=" . $invoiceid . "&paymentfailed=true" ) );
+			}
+		}		  	
+		
 	} catch(Exception $e) {
 		$error = $e->getMessage();
 		echo "Sorry, there was an error: ". $error;
